@@ -17,9 +17,9 @@ class Route extends Model
         'fare',
     ];
 
-    public function schedule(): HasMany
+    public function schedules(): HasMany
     {
-        return $this->hasMany(BusSchedule::class);
+        return $this->hasMany(BusSchedule::class, 'trips');
     }
 
     public function user(): BelongsTo

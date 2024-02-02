@@ -16,18 +16,18 @@ class BusController extends Controller
             'total_seats'=>'required|integer|min:6|max:30',
         ]);
 
-        $bus = new Bus;
+        $bus = new Bus; 
 
         $bus->total_seats = $request->total_seats;
         $bus->bus_operator_id = $request->user()->id;
-        $bus->available_seats = $request->total_seats; 
+        $bus->available_seats = $request->total_seats;/** this number needs to change automatically when booking happens */
 
         $bus->save();
 
         for ($i = 1; $i <= $bus->total_seats; $i++) {
             $seat = new Seat([
                 'bus_id' => $bus->id,
-                'seat_number' => "Seat $i", // You can customize the seat numbering logic
+                'seat_number' => "Seat $i",
             ]);
             $seat->save();
         }
@@ -83,6 +83,12 @@ class BusController extends Controller
             'success'=> $success,
             'response'=>['message'=>$response]
             ];
+        
+    }
+
+    public function useSchedule(){
+        $user_id = auth::id();
+        $schedule = BusSchedule :: findOrFail($user_id);
         
     }
 

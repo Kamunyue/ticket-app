@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BusSchedule;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -12,25 +13,22 @@ class BusScheduleController extends Controller
     public function inputBusSchedule(Request $request)
     {
         $validated_input = $request->validate([
-            'bus_id' => 'unique:bus_schedules',
-            'route_id',
-            'departure_time',
-            'arrival_time',
-            'date'
+            'departure_time'=> 'required|date_format:H:i',
+            'arrival_time' => 'required|date_format:H:i',
         ]);
 
         if ($validated_input)
         {
             $schedule = new BusSchedule;
 
-            $schedule->bus_id = $request->bus_id;
-            $schedule->route_id = $request->route_id;
             $schedule->departure_time = $request->departure_time;
             $schedule->arrival_time = $request->arrival_time;
+            $schedule->user_id = auth()->id();
+            // $schedule->duration = $request->arrival_time->diffInSeconds($request->departure_time);/** check if duration calc works */
 
             $schedule->save();
 
-            return response()->json(['message'=>'Schedule saved']);
+            return response()->json(['message'=>'Schedule saved', 'schedule' => $schedule]);
         }
 
         else {
@@ -39,6 +37,20 @@ class BusScheduleController extends Controller
 
         
 
+    }
+
+    public function viewBusSchedule(){
+        $user_id = auth()->id();
+        $schedules = BusSchedule :: where('user_id', $user_id)->get();
+        $user_info = User :: where('id', $user_id)->get();
+
+        return [$user_info,$schedules];
+    }
+
+    public function viewAllSchedules(){
+        $schedules = BusSchedules :: all();
+
+        return $schedules;
     }
 
     public function editBusSchedule(Request $request, $id)
